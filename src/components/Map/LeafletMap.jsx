@@ -12,6 +12,8 @@ import useEventListener from "@use-it/event-listener";
 import { useSnackbar } from "notistack";
 import { totalBounds } from "../../data/bounds";
 import MapContext from "./context";
+import { useEffect } from 'react';
+import { useCinemaSelection } from '../CinemaSelection/context';
 // Have to override these url's so that it finds the bundles the correct images
 Icon.Default.imagePath =
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/";
@@ -37,6 +39,30 @@ const MapSnappingEventListener = () => {
   return null;
 };
 
+
+///component to observe selection then move the map
+
+const CinemaSelectionListener = () => {
+  const map = useMap();
+  const { selectedCinema } = useCinemaSelection();
+
+  useEffect(() => {
+    if (!selectedCinema) return;
+
+    map.flyTo(
+      [selectedCinema.lat, selectedCinema.lng],
+      14,
+      {
+        duration: 0.5,
+        easeLinearity: 1,
+      }
+    );
+  }, [map, selectedCinema]);
+
+  return null;
+};
+
+
 const convertBounds = ([w, s, e, n]) => [
   // Leaflet expects boundings boxes to be an array consisting of the corners of the box.
   // These corners are [lat, lon] [LatLng docs](https://leafletjs.com/reference.html#latlng)
@@ -44,7 +70,14 @@ const convertBounds = ([w, s, e, n]) => [
   [n, e]
 ];
 
-const LeafletMarker = ({ lat, lon }) => <Marker position={[lat, lon]} />;
+const LeafletMarker = ({ lat, lon, onClick }) => (
+  <Marker
+    position={[lat, lon]}
+    eventHandlers={{
+      click: onClick,
+    }}
+  />
+);
 
 const LeafletMap = ({ children }) => {
   console.log("render Leaflet map");
@@ -57,6 +90,7 @@ const LeafletMap = ({ children }) => {
         zoomDelta={0.5}
       >
         <MapSnappingEventListener />
+        <CinemaSelectionListener />
         <TileLayer
           attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}"

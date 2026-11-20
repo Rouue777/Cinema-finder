@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
 import Layout from "./components/Layout";
 import Map from "./components/Map";
@@ -7,9 +7,12 @@ import {
   FranchiseCinemasList,
   NearbyCinemasList,
 } from "./components/CinemaList";
-import { Switch, Route } from "react-router-dom";
 import Provider from "./components/Provider";
 import loadable from "@loadable/component";
+import { CinemaSelectionProvider } from "./components/CinemaSelection/context";
+import CinemaDetails from "./components/CinemaDetails";
+import { useCinemaSelection } from "./components/CinemaSelection/context";
+import { Switch, Route, useLocation } from "react-router-dom";
 
 // Minimal react component for page not found aside.
 // Could be extracted to a different file if it was more complicated.
@@ -25,9 +28,37 @@ const NearbyCinemaMarkers = loadable(() =>
 );
 // This isn't required for the CinemasLists as they already loadable components [in ./components/CinemaList/index.jsx]
 
+
+////if selectedCinema exists introduce details else null, introduce the original screens
+const CinemaPanel = () => {
+  const { selectedCinema, setSelectedCinema } = useCinemaSelection();
+  const location = useLocation();
+
+  useEffect(() => {
+    setSelectedCinema(null);
+  }, [location.pathname, setSelectedCinema]);
+
+  if (selectedCinema) {
+    return <CinemaDetails />;
+  }
+
+  return (
+    <Switch>
+      <Route exact path="/" component={AsideIndex} />
+      <Route path="/nearby" component={NearbyCinemasList} />
+      <Route
+        path="/:franchiseId/:countryCode"
+        component={FranchiseCinemasList}
+      />
+      <Route path="*" component={NotFound} />
+    </Switch>
+  );
+};
+
 // Our root component containing our map and info panel
 const App = () => (
   <Provider>
+    <CinemaSelectionProvider>
     <Layout>
       <Grid item xs={12} md={8} sx={{ minHeight: 400 }}>
         <Map>
@@ -43,20 +74,13 @@ const App = () => (
           </Switch>
         </Map>
       </Grid>
-      <Grid item xs={12} md={4}>
-        <Paper sx={{ p: 1 }}>
-          <Switch>
-            <Route exact path="/" component={AsideIndex} />
-            <Route path="/nearby" component={NearbyCinemasList} />
-            <Route
-              path="/:franchiseId/:countryCode"
-              component={FranchiseCinemasList}
-            />
-            <Route path="*" component={NotFound} />
-          </Switch>
-        </Paper>
-      </Grid>
+<Grid item xs={12} md={4}>
+  <Paper sx={{ p: 1 }}>
+    <CinemaPanel />
+  </Paper>
+</Grid>
     </Layout>
+    </CinemaSelectionProvider>
   </Provider>
 );
 

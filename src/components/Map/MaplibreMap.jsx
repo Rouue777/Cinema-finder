@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Map, { Marker, useMap } from 'react-map-gl';
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -8,11 +8,26 @@ import { useSnackbar } from 'notistack';
 import { MapContextProvider } from './context';
 import { totalBounds } from '../../data/bounds';
 import maplibreglWorker from "maplibre-gl/dist/maplibre-gl-csp-worker";
+import { useCinemaSelection } from '../CinemaSelection/context';
 maplibregl.workerClass = maplibreglWorker;
 
-const MaplibreMarker = ({ lat, lon }) => (
-  <Marker longitude={lon} latitude={lat} anchor="bottom" />
-)
+const MaplibreMarker = ({ lat, lon, onClick }) => (
+  <Marker longitude={lon} latitude={lat} anchor="bottom">
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Select cinema"
+      style={{
+        cursor: 'pointer',
+        width: 20,
+        height: 20,
+        borderRadius: '50%',
+        border: '2px solid white',
+        backgroundColor: '#1976d2',
+      }}
+    />
+  </Marker>
+);
 
 const convertBounds = ([w, s, e, n]) => ([
   // MapLibre expects bounds to be [LngLatBoundsLike](https://maplibre.org/maplibre-gl-js-docs/api/geography/#lnglatboundslike)
@@ -42,6 +57,26 @@ const MapSnappingEventListener = () => {
   return null;
 };
 
+///context observation for change the at specifi point using the data given by marker
+
+const CinemaSelectionListener = () => {
+  const map = useMap().current;
+  const { selectedCinema } = useCinemaSelection();
+
+  useEffect(() => {
+    if (!selectedCinema || !map) return;
+
+    map.flyTo({
+      center: [selectedCinema.lng, selectedCinema.lat],
+      zoom: 14,
+      duration: 1000,
+    });
+  }, [map, selectedCinema]);
+
+  return null;
+};
+
+
 const MaplibreMap = ({ children }) => {
   console.log("render Maplibre map");
   return (
@@ -54,6 +89,7 @@ const MaplibreMap = ({ children }) => {
       padding={24}
     >
       <MapSnappingEventListener />
+      <CinemaSelectionListener />
       <MapContextProvider value={{ Marker: MaplibreMarker }}>
         {children}
       </MapContextProvider>
