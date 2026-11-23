@@ -32,7 +32,6 @@ const CinemaMarkers = () => {
       lon={cinema.lng}
       key={idx}
       onClick={() => {
-        console.log('Cinema selecionado:', cinema);
         setSelectedCinema(cinema);
       }}
     />
