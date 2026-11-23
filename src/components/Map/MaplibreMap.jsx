@@ -46,7 +46,7 @@ const MapSnappingEventListener = () => {
     try {
       // [Docs](https://maplibre.org/maplibre-gl-js-docs/api/map/#map#flyto)
       map.flyTo({
-        center: [lng , lat],
+        center: [lng, lat],
         zoom: 14,
       })
     } catch (e) {
@@ -86,6 +86,7 @@ const MaplibreMap = ({ children }) => {
       initialViewState={{
         bounds: convertBounds(totalBounds),
       }}
+      maxBounds={convertBounds(totalBounds)}
       padding={24}
     >
       <MapSnappingEventListener />
