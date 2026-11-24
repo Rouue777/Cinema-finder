@@ -13,11 +13,13 @@ const jsxEl = JSON.parse(correctedJsonStr);
 const viewBox = jsxEl.attr.viewBox;
 const d = jsxEl.child[0].attr.d;
 
-const SiteLogo = (props) => {
-  return (
-    <SvgIcon {...{ viewBox }} fontSize='large' sx={{ mr: 1 }} {...props}>
-      <path {...{ d }} />
-    </SvgIcon>
-  )
-}
+const SiteLogo = (props) => (
+  <SvgIcon
+    component={GiFilmProjector}
+    inheritViewBox
+    fontSize="large"
+    sx={{ mr: 1 }}
+    {...props}
+  />
+);
 export default SiteLogo;
