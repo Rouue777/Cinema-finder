@@ -106,3 +106,4 @@ describe('App integration', () => {
     expect(screen.queryByText('Endereço')).not.toBeInTheDocument();
   });
 });
+''
