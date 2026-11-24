@@ -1,0 +1,43 @@
+
+name: Cinema Finder CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Tests and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Obtém o código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configura o ambiente Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Instala as dependências
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      # Executa os testes automatizados
+      - name: Run tests
+        run: npm test -- --watchAll=false
+
+      # Gera o build de produção
+      - name: Build application
+        run: npm run build
+
+      # Valida a construção da imagem Docker
+      - name: Build Docker image
+        run: docker build -t cinema-finder:ci .
