@@ -12,7 +12,20 @@ const MapTypeMenu = () => {
   const [mapType, setMapType] = useMapType();
 
   return (<>
-    <IconButton ref={settingsButtonRef} sx={{ ml: 'auto' }} color={open ? 'grey' : 'initial'} onClick={() => setOpen(true)}>
+    <IconButton
+      ref={settingsButtonRef}
+      color="inherit"
+      aria-label="Configurações do mapa"
+      aria-expanded={open}
+      onClick={() => setOpen(true)}
+      sx={{
+        borderRadius: 2,
+        transition: 'background-color 0.2s ease',
+        '&:hover': {
+          backgroundColor: 'rgba(245, 240, 230, 0.15)',
+        },
+      }}
+    >
       <MdSettings />
     </IconButton>
     <Backdrop
@@ -21,20 +34,44 @@ const MapTypeMenu = () => {
     />
     <Popover
       open={open}
-      anchorEl={settingsButtonRef?.current}
+      anchorEl={settingsButtonRef.current}
       onClose={() => setOpen(false)}
       anchorOrigin={{
         vertical: 'bottom',
-        horizontal: 'left',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            mt: 1,
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            minWidth: 220,
+          },
+        },
       }}
     >
-      <FormControl sx={{ m: 2 }}>
-        <FormLabel>Active map library</FormLabel>
-        <RadioGroup value={mapType} onChange={(evt) => {
-          setMapType(evt.target.value);
-        }}>
+      <FormControl sx={{ p: 2 }}>
+        <FormLabel sx={{ mb: 1, fontWeight: 600 }}>
+          Biblioteca do mapa
+        </FormLabel>
+
+        <RadioGroup
+          value={mapType}
+          onChange={(evt) => setMapType(evt.target.value)}
+        >
           {mapTypes.map((type) => (
-            <FormControlLabel key={type} value={type} control={<Radio />} label={startCase(type)} />
+            <FormControlLabel
+              key={type}
+              value={type}
+              control={<Radio color="primary" />}
+              label={startCase(type)}
+            />
           ))}
         </RadioGroup>
       </FormControl>
